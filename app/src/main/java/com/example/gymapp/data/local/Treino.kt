@@ -7,5 +7,6 @@ import androidx.room.PrimaryKey
 data class Treino(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val nome: String
+    val nome: String,
+    val descricao: String
 )
