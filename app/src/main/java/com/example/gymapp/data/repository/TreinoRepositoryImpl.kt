@@ -23,6 +23,10 @@ class TreinoRepositoryImpl @Inject constructor(
         dao.deletarTreino(treino)
     }
 
+    override suspend fun deletarExercicio(exercicio: Exercicio) {
+        dao.deletarExercicio(exercicio)
+    }
+
     override fun getTodosOsTreinos(): Flow<List<TreinoComExercicios>> {
         return dao.getTodosOsTreinosComExercicios()
     }

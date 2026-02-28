@@ -23,6 +23,7 @@ data class Exercicio(
     val series: Int,
     val repeticoes: Int,
     val pesoCarga: Double,
+    val concluido: Boolean = false,
 
     @ColumnInfo(index = true)
     val treinoId: Int

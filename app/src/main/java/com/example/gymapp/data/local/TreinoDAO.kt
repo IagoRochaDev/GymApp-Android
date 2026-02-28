@@ -12,13 +12,16 @@ import kotlinx.coroutines.flow.Flow
 interface TreinoDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun inserirTreino(treino: Treino): Long // Retorna o ID gerado
+    suspend fun inserirTreino(treino: Treino): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun inserirExercicio(exercicio: Exercicio)
 
     @Delete
     suspend fun deletarTreino(treino: Treino)
+
+    @Delete
+    suspend fun deletarExercicio(exercicio: Exercicio)
 
     @Transaction
     @Query("SELECT * FROM treinos")

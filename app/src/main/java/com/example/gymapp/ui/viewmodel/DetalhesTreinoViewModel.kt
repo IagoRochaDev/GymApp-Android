@@ -3,6 +3,7 @@ package com.example.gymapp.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.gymapp.data.local.Exercicio
+import com.example.gymapp.data.local.Treino
 import com.example.gymapp.data.local.TreinoComExercicios
 import com.example.gymapp.data.repository.TreinoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -47,6 +48,25 @@ class DetalhesTreinoViewModel @Inject constructor(
                 treinoId = treinoId
             )
             repository.inserirExercicio(novoExercicio)
+        }
+    }
+
+    fun atualizarExercicio(exercicio: Exercicio) {
+        viewModelScope.launch {
+            repository.inserirExercicio(exercicio)
+        }
+    }
+
+    fun toggleConcluido(exercicio: Exercicio) {
+        viewModelScope.launch {
+            val exercicioAtualizado = exercicio.copy(concluido = !exercicio.concluido)
+            repository.inserirExercicio(exercicioAtualizado)
+        }
+    }
+
+    fun deletarExercicio(exercicio: Exercicio) {
+        viewModelScope.launch {
+            repository.deletarExercicio(exercicio)
         }
     }
 }

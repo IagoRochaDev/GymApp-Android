@@ -9,5 +9,7 @@ interface TreinoRepository {
     suspend fun inserirTreino(treino: Treino): Long
     suspend fun inserirExercicio(exercicio: Exercicio)
     suspend fun deletarTreino(treino: Treino)
+
+    suspend fun deletarExercicio(exercicio: Exercicio)
     fun getTodosOsTreinos(): Flow<List<TreinoComExercicios>>
 }

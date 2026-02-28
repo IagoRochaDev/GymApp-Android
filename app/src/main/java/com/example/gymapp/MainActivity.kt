@@ -11,21 +11,46 @@ import androidx.compose.ui.Modifier
 import com.example.gymapp.ui.screens.HomeScreen
 import com.example.gymapp.ui.theme.GymAppTheme
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.example.gymapp.ui.screens.DetalhesTreinoScreen
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContent {
-            GymAppTheme { // Ou o nome do seu tema
+            GymAppTheme {
+                val navController = rememberNavController()
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    // Por enquanto, passamos uma função vazia no clique
-                    HomeScreen(onTreinoClick = { id ->
-                        println("Clicou no treino $id")
-                    })
+                    NavHost(navController = navController, startDestination = "home") {
+                        composable("home") {
+                            HomeScreen(
+                                onTreinoClick = { treinoId ->
+                                    navController.navigate("detalhes/$treinoId")
+                                }
+                            )
+                        }
+
+                        composable(
+                            route = "detalhes/{treinoId}",
+                            arguments = listOf(navArgument("treinoId") { type = NavType.IntType })
+                        ) { backStackEntry ->
+                            val treinoId = backStackEntry.arguments?.getInt("treinoId") ?: 0
+
+                            DetalhesTreinoScreen(
+                                treinoId = treinoId,
+                                onBack = { navController.popBackStack() }
+                            )
+                        }
+                    }
                 }
             }
         }
