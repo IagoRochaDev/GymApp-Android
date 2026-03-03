@@ -1,35 +1,22 @@
 package com.example.gymapp.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.gymapp.ui.viewmodel.DetalhesTreinoViewModel
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.KeyboardType
 import com.example.gymapp.data.local.Exercicio
+import com.example.gymapp.ui.viewmodel.DetalhesTreinoViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,35 +45,59 @@ fun DetalhesTreinoScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { 
+            FloatingActionButton(onClick = {
                 exercicioParaEditar = null
-                showDialog = true 
+                showDialog = true
             }) {
                 Icon(Icons.Default.Add, contentDescription = "Novo Exercício")
             }
         }
     ) { padding ->
-        Column(modifier = Modifier.padding(padding)) {
-            // Se a lista estiver vazia ou nula
-            if (treinoComExercicios?.exercicios.isNullOrEmpty()) {
-                Text(
-                    "Nenhum exercício ainda.",
-                    modifier = Modifier.padding(16.dp)
-                )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            if (treinoComExercicios == null || treinoComExercicios!!.exercicios.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = null,
+                            modifier = Modifier.size(64.dp),
+                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Nenhum exercício encontrado",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = "Clique no + para começar!",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+                }
             } else {
-                LazyColumn {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(
                         items = treinoComExercicios!!.exercicios,
                         key = { it.id }
                     ) { exercicio ->
                         ExercicioCard(
                             exercicio = exercicio,
-                            onLongClick = { 
+                            onLongClick = {
                                 exercicioParaEditar = exercicio
                                 showDialog = true
                             },
                             onDismiss = { viewModel.deletarExercicio(exercicio) },
-                            onCheckClick = { novoSatus ->
+                            onCheckClick = { novoStatus ->
                                 viewModel.toggleConcluido(exercicio)
                             }
                         )
@@ -98,7 +109,7 @@ fun DetalhesTreinoScreen(
         if (showDialog) {
             AdicionarExercicioDialog(
                 exercicioParaEditar = exercicioParaEditar,
-                onDismiss = { 
+                onDismiss = {
                     showDialog = false
                     exercicioParaEditar = null
                 },

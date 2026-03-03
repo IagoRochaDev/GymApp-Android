@@ -7,16 +7,18 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.example.gymapp.ui.screens.HomeScreen
-import com.example.gymapp.ui.theme.GymAppTheme
-import dagger.hilt.android.AndroidEntryPoint
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.gymapp.ui.screens.DetalhesTreinoScreen
+import com.example.gymapp.ui.screens.HomeScreen
+import com.example.gymapp.ui.theme.GymAppTheme
+import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -25,34 +27,48 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             GymAppTheme {
-                val navController = rememberNavController()
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    NavHost(navController = navController, startDestination = "home") {
-                        composable("home") {
-                            HomeScreen(
-                                onTreinoClick = { treinoId ->
-                                    navController.navigate("detalhes/$treinoId")
-                                }
-                            )
-                        }
-
-                        composable(
-                            route = "detalhes/{treinoId}",
-                            arguments = listOf(navArgument("treinoId") { type = NavType.IntType })
-                        ) { backStackEntry ->
-                            val treinoId = backStackEntry.arguments?.getInt("treinoId") ?: 0
-
-                            DetalhesTreinoScreen(
-                                treinoId = treinoId,
-                                onBack = { navController.popBackStack() }
-                            )
-                        }
-                    }
-                }
+                GymAppNavigation()
             }
         }
+    }
+}
+
+@Composable
+fun GymAppNavigation() {
+    val navController = rememberNavController()
+
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        NavHost(navController = navController, startDestination = "home") {
+            composable("home") {
+                HomeScreen(
+                    onTreinoClick = { treinoId ->
+                        navController.navigate("detalhes/$treinoId")
+                    }
+                )
+            }
+
+            composable(
+                route = "detalhes/{treinoId}",
+                arguments = listOf(navArgument("treinoId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val treinoId = backStackEntry.arguments?.getInt("treinoId") ?: 0
+
+                DetalhesTreinoScreen(
+                    treinoId = treinoId,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun GymAppPreview() {
+    GymAppTheme {
+        GymAppNavigation()
     }
 }

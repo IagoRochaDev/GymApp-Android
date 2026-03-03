@@ -6,6 +6,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,6 +18,35 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.gymapp.data.local.Exercicio
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun GymTopAppBar(title: String) {
+    CenterAlignedTopAppBar(
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                // Ícone do Halter (Seu Logo)
+                Icon(
+                    imageVector = Icons.Default.FitnessCenter,
+                    contentDescription = "Logo",
+                    tint = MaterialTheme.colorScheme.primary, // Laranja
+                    modifier = Modifier.size(28.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                // Nome do App
+                Text(
+                    text = title.uppercase(), // Uppercase fica mais "forte"
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp // Espaçamento entre letras (estilo premium)
+                )
+            }
+        },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.background, // Mesma cor do fundo
+            titleContentColor = MaterialTheme.colorScheme.onBackground
+        )
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable

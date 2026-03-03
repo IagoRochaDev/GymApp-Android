@@ -1,5 +1,6 @@
 package com.example.gymapp.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -113,31 +114,89 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
     onTreinoClick: (Int) -> Unit
 ) {
-    val treinos by viewModel.treinos.collectAsState(initial = emptyList())
+    val treinosComExercicios by viewModel.treinos.collectAsState(initial = emptyList())
 
     var showDialog by remember { mutableStateOf(false) }
 
+    var treinoParaDeletar by remember { mutableStateOf<Treino?>(null) }
+
     Scaffold(
+        topBar = { GymTopAppBar(title = "GymApp") },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showDialog = true },
-                containerColor = MaterialTheme.colorScheme.primary
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Adicionar Treino")
             }
         }
     ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(bottom = 80.dp)
-        ) {
-            items(treinos) { treinoComExercicios ->
-                TreinoCard(
-                    treino = treinoComExercicios.treino,
-                    onClick = { onTreinoClick(treinoComExercicios.treino.id) },
-                    onDelete = { viewModel.deletarTreino(treinoComExercicios.treino) }
+        if (treinosComExercicios.isEmpty()) {
+            Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .background(MaterialTheme.colorScheme.background),
+            contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(64.dp),
+                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Nenhum treino encontrado",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = "Clique no + para começar!",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(MaterialTheme.colorScheme.background),
+                contentPadding = PaddingValues(bottom = 80.dp)
+            ) {
+                items(treinosComExercicios) { treinoComEx ->
+                    TreinoCard(
+                        treino = treinoComEx.treino,
+                        onClick = { onTreinoClick(treinoComEx.treino.id) },
+                        onDelete = { treinoParaDeletar = treinoComEx.treino }
+                    )
+                }
+            }
+            if (treinoParaDeletar != null) {
+                AlertDialog(
+                    onDismissRequest = { treinoParaDeletar = null },
+                    title = { Text("Excluir Treino?") },
+                    text = { Text("Você tem certeza que deseja excluir '${treinoParaDeletar?.nome}'? Todos os exercícios serão perdidos.") },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                // Agora sim deleta de verdade!
+                                viewModel.deletarTreino(treinoParaDeletar!!)
+                                treinoParaDeletar = null
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                        ) {
+                            Text("Excluir")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { treinoParaDeletar = null }) {
+                            Text("Cancelar")
+                        }
+                    }
                 )
             }
         }
