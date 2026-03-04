@@ -11,9 +11,10 @@ Um aplicativo moderno e responsivo para gerenciamento de treinos de academia, co
 O GymApp permite que os usuários criem rotinas personalizadas, adicionem exercícios com controle de séries, repetições e cargas, e acompanhem o progresso de forma visual e intuitiva.
 
 <p align="center">
-  <img src="link_da_imagem_tela_inicial_aqui" width="250" alt="Tela Inicial">
-  <img src="link_da_imagem_dark_mode_aqui" width="250" alt="Modo Escuro">
-  <img src="link_da_imagem_detalhes_aqui" width="250" alt="Detalhes do Treino">
+    <img src="https://drive.google.com/file/d/1zKxQXbVFyDBZdFx-fh0hsUHlmlHykyvF/view?usp=drive_link" width="250" alt="Tela Inicial">
+    <img src="https://drive.google.com/file/d/1thDGnPwzaoq5zEj5QwPVC5BTpK2efpJ3/view?usp=drive_link" width="250" alt="Modo Escuro">
+    <img src="https://drive.google.com/file/d/1kJdx3EC5g2S-KmLs3ITFchiVeGm4aBEj/view?usp=drive_link" width="250" alt="Detalhes do Treino">
+    <img src="https://drive.google.com/file/d/1kJdx3EC5g2S-KmLs3ITFchiVeGm4aBEj/view?usp=drive_link" width="250" alt="Detalhes do Treino">
 </p>
 
 ## ✨ Funcionalidades (UX/UI)
