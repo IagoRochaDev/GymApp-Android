@@ -11,16 +11,10 @@ Um aplicativo moderno e responsivo para gerenciamento de treinos de academia, co
 O GymApp permite que os usuários criem rotinas personalizadas, adicionem exercícios com controle de séries, repetições e cargas, e acompanhem o progresso de forma visual e intuitiva.
 
 <p align="center">
-    <img src="assets/tela_inical_vazia(theme_light).png" width="250" alt="Tela Inicial Vazia">
-    <img src="assets/tela_inicial(theme_light).png" width="250" alt="Tela Inicial">
-    <img src="assets/tela_detalhe_treino(theme_light).png" width="250" alt="Tela Inicial">
-    <img src="assets/tela_detalhe_treino_item_check(theme_light).png" width="250" alt="Tela Inicial">
-    <br>
-    <img src="assets/tela_inical_vazia(theme_dark).png" width="250" alt="Tela Inicial Vazia">
-    <img src="assets/tela_inicial(theme_dark).png" width="250" alt="Tela Inicial">
-    <img src="assets/tela_detalhe_treino(theme_dark).png" width="250" alt="Tela Inicial">
-    <img src="assets/tela_detalhe_treino_item_check(theme_dark).png" width="250" alt="Tela Inicial">
-
+    <img src="https://drive.google.com/file/d/1zKxQXbVFyDBZdFx-fh0hsUHlmlHykyvF/view?usp=drive_link" width="250" alt="Tela Inicial">
+    <img src="https://drive.google.com/file/d/1thDGnPwzaoq5zEj5QwPVC5BTpK2efpJ3/view?usp=drive_link" width="250" alt="Modo Escuro">
+    <img src="https://drive.google.com/file/d/1kJdx3EC5g2S-KmLs3ITFchiVeGm4aBEj/view?usp=drive_link" width="250" alt="Detalhes do Treino">
+    <img src="https://drive.google.com/file/d/1kJdx3EC5g2S-KmLs3ITFchiVeGm4aBEj/view?usp=drive_link" width="250" alt="Detalhes do Treino">
 </p>
 
 ## ✨ Funcionalidades (UX/UI)
