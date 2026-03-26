@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Base.Theme.GymApp" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="android:windowSplashScreenBackground">@color/splash_background</item>
-
+        <!-- Itens específicos para API 31+ devem ser movidos para values-v31 -->
         <item name="android:windowBackground">@color/splash_background</item>
     </style>
 
     <style name="Theme.GymApp" parent="Base.Theme.GymApp" />
+
+    <!-- Estilo para a API de SplashScreen da AndroidX -->
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/Theme.GymApp</item>
+    </style>
 </resources>
