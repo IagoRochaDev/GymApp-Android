@@ -10,6 +10,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -49,14 +50,22 @@ class HomeViewModelTest {
                 exercicios = emptyList()
             )
         )
-        every { repository.getTodosOsTreinos() } returns flowOf(treinosList)
+        val repositoryFlow = MutableSharedFlow<List<TreinoComExercicios>>()
+        every { repository.getTodosOsTreinos() } returns repositoryFlow
         
-        // Re-instanciar para pegar o novo flow (ou poderíamos usar MutableStateFlow no mock)
+        // Re-instanciar para usar o novo mock flow
         val viewModel = HomeViewModel(repository)
 
         // When & Then
-        viewModel.treinos.test {
-            assertEquals(treinosList, awaitItem())
+        viewModel.uiState.test {
+            // Initial value from stateIn
+            assertEquals(HomeUiState(isLoading = true), awaitItem())
+            
+            // Emit data from repository
+            repositoryFlow.emit(treinosList)
+            
+            // Value from repository (mapped with isLoading = false)
+            assertEquals(HomeUiState(treinos = treinosList, isLoading = false), awaitItem())
         }
     }
 
@@ -68,7 +77,7 @@ class HomeViewModelTest {
         coEvery { repository.inserirTreino(any()) } returns 1L
 
         // When
-        viewModel.salvarTreino(nome, descricao)
+        viewModel.onEvent(HomeEvent.SalvarTreino(nome, descricao))
 
         // Then
         coVerify { 
@@ -85,7 +94,7 @@ class HomeViewModelTest {
         coEvery { repository.deletarTreino(treino) } returns Unit
 
         // When
-        viewModel.deletarTreino(treino)
+        viewModel.onEvent(HomeEvent.DeletarTreino(treino))
 
         // Then
         coVerify { repository.deletarTreino(treino) }
