@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.gymapp.data.local.Treino
+import com.example.gymapp.ui.viewmodel.HomeEvent
 import com.example.gymapp.ui.viewmodel.HomeViewModel
 
 @Composable
@@ -114,10 +115,9 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
     onTreinoClick: (Int) -> Unit
 ) {
-    val treinosComExercicios by viewModel.treinos.collectAsState(initial = emptyList())
+    val uiState by viewModel.uiState.collectAsState()
 
     var showDialog by remember { mutableStateOf(false) }
-
     var treinoParaDeletar by remember { mutableStateOf<Treino?>(null) }
 
     Scaffold(
@@ -132,13 +132,13 @@ fun HomeScreen(
             }
         }
     ) { paddingValues ->
-        if (treinosComExercicios.isEmpty()) {
+        if (uiState.treinos.isEmpty() && !uiState.isLoading) {
             Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                        .background(MaterialTheme.colorScheme.background),
-            contentAlignment = Alignment.Center
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(MaterialTheme.colorScheme.background),
+                contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(
@@ -159,6 +159,10 @@ fun HomeScreen(
                     )
                 }
             }
+        } else if (uiState.isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
         } else {
             LazyColumn(
                 modifier = Modifier
@@ -167,7 +171,7 @@ fun HomeScreen(
                     .background(MaterialTheme.colorScheme.background),
                 contentPadding = PaddingValues(bottom = 80.dp)
             ) {
-                items(treinosComExercicios) { treinoComEx ->
+                items(uiState.treinos) { treinoComEx ->
                     TreinoCard(
                         treino = treinoComEx.treino,
                         onClick = { onTreinoClick(treinoComEx.treino.id) },
@@ -183,8 +187,7 @@ fun HomeScreen(
                     confirmButton = {
                         Button(
                             onClick = {
-                                // Agora sim deleta de verdade!
-                                viewModel.deletarTreino(treinoParaDeletar!!)
+                                viewModel.onEvent(HomeEvent.DeletarTreino(treinoParaDeletar!!))
                                 treinoParaDeletar = null
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
@@ -205,7 +208,7 @@ fun HomeScreen(
             AdicionarTreinoDialog(
                 onDismiss = { showDialog = false },
                 onConfirm = { nome, desc ->
-                    viewModel.salvarTreino(nome, desc)
+                    viewModel.onEvent(HomeEvent.SalvarTreino(nome, desc))
                     showDialog = false
                 }
             )
