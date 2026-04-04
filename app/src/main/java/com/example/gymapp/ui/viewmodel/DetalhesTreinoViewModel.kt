@@ -15,6 +15,19 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+data class DetalhesUiState(
+    val treinoComExercicios: TreinoComExercicios? = null,
+    val isLoading: Boolean = false
+)
+
+sealed interface DetalhesEvent {
+    data class CarregarTreino(val id: Int) : DetalhesEvent
+    data class AdicionarExercicio(val nome: String, val series: Int, val reps: Int, val peso: Double) : DetalhesEvent
+    data class AtualizarExercicio(val exercicio: Exercicio) : DetalhesEvent
+    data class ToggleConcluido(val exercicio: Exercicio) : DetalhesEvent
+    data class DeletarExercicio(val exercicio: Exercicio) : DetalhesEvent
+}
+
 @HiltViewModel
 class DetalhesTreinoViewModel @Inject constructor(
     private val repository: TreinoRepository
@@ -22,21 +35,34 @@ class DetalhesTreinoViewModel @Inject constructor(
 
     private val _treinoIdSelecionado = MutableStateFlow<Int?>(null)
 
-    val treinoSelecionado: StateFlow<TreinoComExercicios?> = _treinoIdSelecionado
+    val uiState: StateFlow<DetalhesUiState> = _treinoIdSelecionado
         .combine(repository.getTodosOsTreinos()) { id, lista ->
-            lista.find { it.treino.id == id }
+            DetalhesUiState(
+                treinoComExercicios = lista.find { it.treino.id == id },
+                isLoading = false
+            )
         }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = null
+            initialValue = DetalhesUiState(isLoading = true)
         )
 
-    fun carregarTreino(id: Int) {
+    fun onEvent(event: DetalhesEvent) {
+        when (event) {
+            is DetalhesEvent.CarregarTreino -> carregarTreino(event.id)
+            is DetalhesEvent.AdicionarExercicio -> adicionarExercicio(event.nome, event.series, event.reps, event.peso)
+            is DetalhesEvent.AtualizarExercicio -> atualizarExercicio(event.exercicio)
+            is DetalhesEvent.ToggleConcluido -> toggleConcluido(event.exercicio)
+            is DetalhesEvent.DeletarExercicio -> deletarExercicio(event.exercicio)
+        }
+    }
+
+    private fun carregarTreino(id: Int) {
         _treinoIdSelecionado.value = id
     }
 
-    fun adicionarExercicio(nome: String, series: Int, reps: Int, peso: Double) {
+    private fun adicionarExercicio(nome: String, series: Int, reps: Int, peso: Double) {
         val treinoId = _treinoIdSelecionado.value ?: return
 
         viewModelScope.launch {
@@ -51,20 +77,20 @@ class DetalhesTreinoViewModel @Inject constructor(
         }
     }
 
-    fun atualizarExercicio(exercicio: Exercicio) {
+    private fun atualizarExercicio(exercicio: Exercicio) {
         viewModelScope.launch {
             repository.inserirExercicio(exercicio)
         }
     }
 
-    fun toggleConcluido(exercicio: Exercicio) {
+    private fun toggleConcluido(exercicio: Exercicio) {
         viewModelScope.launch {
             val exercicioAtualizado = exercicio.copy(concluido = !exercicio.concluido)
             repository.inserirExercicio(exercicioAtualizado)
         }
     }
 
-    fun deletarExercicio(exercicio: Exercicio) {
+    private fun deletarExercicio(exercicio: Exercicio) {
         viewModelScope.launch {
             repository.deletarExercicio(exercicio)
         }

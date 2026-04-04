@@ -16,6 +16,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.gymapp.data.local.Exercicio
+import com.example.gymapp.ui.viewmodel.DetalhesEvent
 import com.example.gymapp.ui.viewmodel.DetalhesTreinoViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -26,10 +27,12 @@ fun DetalhesTreinoScreen(
     viewModel: DetalhesTreinoViewModel = hiltViewModel()
 ) {
     LaunchedEffect(treinoId) {
-        viewModel.carregarTreino(treinoId)
+        viewModel.onEvent(DetalhesEvent.CarregarTreino(treinoId))
     }
 
-    val treinoComExercicios by viewModel.treinoSelecionado.collectAsState()
+    val state by viewModel.uiState.collectAsState()
+    val treinoComExercicios = state.treinoComExercicios
+    
     var showDialog by remember { mutableStateOf(false) }
     var exercicioParaEditar by remember { mutableStateOf<Exercicio?>(null) }
 
@@ -58,7 +61,7 @@ fun DetalhesTreinoScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            if (treinoComExercicios == null || treinoComExercicios!!.exercicios.isEmpty()) {
+            if (treinoComExercicios == null || treinoComExercicios.exercicios.isEmpty()) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -87,7 +90,7 @@ fun DetalhesTreinoScreen(
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(
-                        items = treinoComExercicios!!.exercicios,
+                        items = treinoComExercicios.exercicios,
                         key = { it.id }
                     ) { exercicio ->
                         ExercicioCard(
@@ -96,9 +99,9 @@ fun DetalhesTreinoScreen(
                                 exercicioParaEditar = exercicio
                                 showDialog = true
                             },
-                            onDismiss = { viewModel.deletarExercicio(exercicio) },
+                            onDismiss = { viewModel.onEvent(DetalhesEvent.DeletarExercicio(exercicio)) },
                             onCheckClick = { _ ->
-                                viewModel.toggleConcluido(exercicio)
+                                viewModel.onEvent(DetalhesEvent.ToggleConcluido(exercicio))
                             }
                         )
                     }
@@ -115,16 +118,18 @@ fun DetalhesTreinoScreen(
                 },
                 onConfirm = { nome, series, reps, peso ->
                     if (exercicioParaEditar != null) {
-                        viewModel.atualizarExercicio(
-                            exercicioParaEditar!!.copy(
-                                nome = nome,
-                                series = series,
-                                repeticoes = reps,
-                                pesoCarga = peso
+                        viewModel.onEvent(
+                            DetalhesEvent.AtualizarExercicio(
+                                exercicioParaEditar!!.copy(
+                                    nome = nome,
+                                    series = series,
+                                    repeticoes = reps,
+                                    pesoCarga = peso
+                                )
                             )
                         )
                     } else {
-                        viewModel.adicionarExercicio(nome, series, reps, peso)
+                        viewModel.onEvent(DetalhesEvent.AdicionarExercicio(nome, series, reps, peso))
                     }
                     showDialog = false
                     exercicioParaEditar = null
