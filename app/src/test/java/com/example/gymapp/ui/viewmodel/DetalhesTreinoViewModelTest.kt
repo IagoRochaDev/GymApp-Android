@@ -11,6 +11,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -37,7 +38,8 @@ class DetalhesTreinoViewModelTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        every { repository.getTodosOsTreinos() } returns flowOf(treinosComExercicios)
+        // Mock default flow to avoid immediate emission that might interfere with tests
+        every { repository.getTodosOsTreinos() } returns flowOf(emptyList())
         viewModel = DetalhesTreinoViewModel(repository)
     }
 
@@ -47,31 +49,44 @@ class DetalhesTreinoViewModelTest {
     }
 
     @Test
-    fun `treinoSelecionado deve emitir null inicialmente`() = runTest {
-        viewModel.treinoSelecionado.test {
-            assertEquals(null, awaitItem())
+    fun `uiState deve emitir isLoading true inicialmente`() = runTest {
+        val repositoryFlow = MutableSharedFlow<List<TreinoComExercicios>>()
+        every { repository.getTodosOsTreinos() } returns repositoryFlow
+        
+        val viewModel = DetalhesTreinoViewModel(repository)
+
+        viewModel.uiState.test {
+            assertEquals(DetalhesUiState(isLoading = true), awaitItem())
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
     @Test
-    fun `carregarTreino deve atualizar treinoSelecionado`() = runTest {
-        viewModel.treinoSelecionado.test {
-            assertEquals(null, awaitItem()) // Inicial
+    fun `carregarTreino deve atualizar uiState com o treino correto`() = runTest {
+        val repositoryFlow = MutableSharedFlow<List<TreinoComExercicios>>()
+        every { repository.getTodosOsTreinos() } returns repositoryFlow
+        
+        val viewModel = DetalhesTreinoViewModel(repository)
+
+        viewModel.uiState.test {
+            assertEquals(DetalhesUiState(isLoading = true), awaitItem())
             
-            viewModel.carregarTreino(1)
+            viewModel.onEvent(DetalhesEvent.CarregarTreino(1))
             
-            assertEquals(treinosComExercicios[0], awaitItem())
+            repositoryFlow.emit(treinosComExercicios)
+            
+            assertEquals(DetalhesUiState(treinoComExercicios = treinosComExercicios[0], isLoading = false), awaitItem())
         }
     }
 
     @Test
     fun `adicionarExercicio deve chamar o repositorio`() = runTest {
         // Given
-        viewModel.carregarTreino(1)
+        viewModel.onEvent(DetalhesEvent.CarregarTreino(1))
         coEvery { repository.inserirExercicio(any()) } returns Unit
 
         // When
-        viewModel.adicionarExercicio("Agachamento", 3, 12, 50.0)
+        viewModel.onEvent(DetalhesEvent.AdicionarExercicio("Agachamento", 3, 12, 50.0))
 
         // Then
         coVerify {
@@ -87,7 +102,7 @@ class DetalhesTreinoViewModelTest {
         coEvery { repository.inserirExercicio(any()) } returns Unit
 
         // When
-        viewModel.toggleConcluido(sampleExercicio)
+        viewModel.onEvent(DetalhesEvent.ToggleConcluido(sampleExercicio))
 
         // Then
         coVerify {
@@ -103,7 +118,7 @@ class DetalhesTreinoViewModelTest {
         coEvery { repository.deletarExercicio(any()) } returns Unit
 
         // When
-        viewModel.deletarExercicio(sampleExercicio)
+        viewModel.onEvent(DetalhesEvent.DeletarExercicio(sampleExercicio))
 
         // Then
         coVerify { repository.deletarExercicio(sampleExercicio) }
